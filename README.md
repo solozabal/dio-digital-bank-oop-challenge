@@ -5,67 +5,52 @@ Strengthen knowledge in Object-Oriented Programming (OOP) in Java, through the i
 
 ```mermaid
 classDiagram
-    class Banco {
-        - clientes: List<Cliente>
-        + adicionarCliente(cliente: Cliente): void
-        + buscarCliente(cpf: String): Cliente
-        + registrarTransacao(descricao: String, objeto: Object): void
-    }
-
     class Cliente {
-        - nome: String
-        - cpf: String
-        - contas: List<Conta>
-        + getNome(): String
-        + getCpf(): String
-        + getContas(): List<Conta>
+        <<abstract>>
+        - String nome
+        - String email
     }
-
     class Conta {
-        - numero: int
-        - saldo: double
-        + depositar(valor: double): void
-        + sacar(valor: double): boolean
-        + transferir(outraConta: Conta, valor: double): boolean
-        + solicitarEmprestimo(rendaMensal: double, possuiGarantia: boolean, tipoBem: String, valorBem: double): boolean
-        + solicitarCartaoCredito(tipoRenda: String, rendaMensal: double, possuiBemGarantia: boolean, tipoBem: String, valorBem: double): void
-        + realizarPagamentoBoleto(valor: double): void
-        + solicitarExtrato(): void
-        + realizarRecargaCelular(numero: String, valor: double): void
+        <<abstract>>
+        - String numero
+        - double saldo
+        - String senha
+        + sacar(valor: double, senha: String): boolean
+        + depositar(valor: double): boolean
+        + validarSenha(senha: String): boolean
+        + consultarExtrato(dias: int): List<String>
+    }
+    class ContaCorrente {
+        - String cpf
+        - String profissao
+        - double rendaMensal
+    }
+    class ContaPoupanca {
+        - double depositoInicial
     }
 
-    class Main {
-        - banco: Banco
-        + main(args: String[]): void
-    }
+    Cliente <|-- Conta
+    Conta <|-- ContaCorrente
+    Conta <|-- ContaPoupanca
 
-    class Emprestimo {
-        - valor: double
-        - aprovado: boolean
-        - tipoBem: String
-        - valorBem: double
-        + avaliarGarantiaVeiculo(veiculo: Veiculo): boolean
+    class BancoDigital {
+        - Map<String, ContaCorrente> contasCorrente
+        - Map<String, ContaPoupanca> contasPoupanca
+        + cadastrarCliente(nome: String, email: String): Cliente
+        + abrirContaCorrente(nome: String, cpf: String, profissao: String, rendaMensal: double): String
+        + abrirContaPoupanca(nome: String, cpf: String, depositoInicial: double): String
+        + sacarDinheiroContaCorrente(numeroConta: String, senha: String, valor: double): void
+        + sacarDinheiroContaPoupanca(numeroConta: String, senha: String, valor: double): void
+        + transferirParaContaCorrente(numeroContaOrigem: String, senha: String, numeroContaDestino: String, valor: double): void
+        + transferirParaContaPoupanca(numeroContaOrigem: String, senha: String, numeroContaDestino: String, valor: double): void
+        + depositarContaCorrente(numeroConta: String, valor: double): void
+        + depositarContaPoupanca(numeroConta: String, valor: double): void
+        + consultarSaldoContaCorrente(numeroConta: String, senha: String): void
+        + consultarSaldoContaPoupanca(numeroConta: String, senha: String): void
+        + consultarExtratoContaCorrente(numeroConta: String, senha: String, dias: int): void
+        + consultarExtratoContaPoupanca(numeroConta: String, senha: String, dias: int): void
+        + pagarBoleto(numeroConta: String, senha: String, codigoDeBarras: String, valor: double): void
+        + solicitarEmprestimo(numeroConta: String, rendaMensal: double, profissao: String, possuiBem: String, tipoBem: String, modeloAno: String, valorBem: double): void
+        + solicitarCartaoCredito(numeroConta: String, rendaMensal: double, profissao: String): void
+        + colocarCreditoCelular(numeroConta: String, senha: String, valor: double, numeroCelular: String): void
     }
-
-    class CartaoCredito {
-        - tipoRenda: String
-        - rendaMensal: double
-        - possuiBemGarantia: boolean
-        - tipoBem: String
-        - valorBem: double
-        + enviarSolicitacao(): void
-    }
-
-    class Veiculo {
-        - tipo: String
-        - modelo: String
-        - anoFabricacao: int
-        - valorFipe: double
-    }
-
-    Banco "1" *-- "*" Cliente
-    Cliente "1" *-- "*" Conta
-    Conta "1" o-- "1" Emprestimo
-    Conta "1" o-- "1" CartaoCredito
-    Conta -- Veiculo
-    Main "1" o-- "1" Banco
